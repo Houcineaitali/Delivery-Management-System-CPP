@@ -1,49 +1,55 @@
 #include <iostream>
 #include <memory>
-#include <vector>
-#include "Core.h"       
-#include "Carriers.cpp"    
-#include "Manager.cpp"    
+#include "core.h"
+#include "carriers.cpp"
+#include "manager.cpp"
 
 using namespace std;
 
-void displayMenu() {
-    cout << "\n--- Logistic Simulator System ---" << endl;
-    cout << "1. Ajouter un nouveau colis" << endl;
-    cout << "2. Afficher le rapport de livraison" << endl;
-    cout << "3. Quitter" << endl;
-    cout << "Choix : ";
+void showHeader() {
+    cout << "=================================================" << endl;
+    cout << "   BIENVENUE DANS LE SYSTEME LOGITECH SOLUTIONS  " << endl;
+    cout << "=================================================" << endl;
 }
 
 int main() {
-    // 1. إنشاء محرك النظام وتعبئة الأسطول (Fleet)
-    DeliverySystem system; 
-    system.addCarrier(make_unique<Truck>());
-    system.addCarrier(make_unique<Drone>());
-    system.addCarrier(make_unique<Bike>());
+    // إنشاء النظام
+    DeliverySystem system;
 
-    int choice;
+    // تهيئة الأسطول (التعبئة تتم تلقائياً عند الإقلاع)
+    system.addCarrier(make_unique<Drone>()); // يتم فحص الدرون أولاً للسرعة والهشاشة
+    system.addCarrier(make_unique<Bike>());  // ثم الدراجة للاقتصاد
+    system.addCarrier(make_unique<Truck>()); // ثم الشاحنة للأوزان الثقيلة
+
+    int choice = 0;
+    
     do {
-        displayMenu();
+        showHeader();
+        cout << "1. Expédier un nouveau colis" << endl;
+        cout << "2. Quitter le centre de contrôle" << endl;
+        cout << "Votre choix : ";
         cin >> choice;
 
         if (choice == 1) {
             double weight;
             int fragileInput;
-            
-            cout << "Poids du colis (kg) : ";
+
+            cout << "\n--- Saisie des informations du colis ---" << endl;
+            cout << "Entrez le poids du colis (en kg) : ";
             cin >> weight;
-            cout << "Le colis est-il fragile ? (1: Oui, 0: Non) : ";
+            cout << "Le colis est-il fragile ? (1 = Oui / 0 = Non) : ";
             cin >> fragileInput;
 
-            Package p = {weight, (fragileInput == 1)   }
-             ;
+            // بناء كائن الطرد
+            Package p = { weight, (fragileInput == 1) };
 
+            // إرسال الطرد للمحرك الذكي
             system.ship(p);
+            cout << "\n=================================================\n" << endl;
         }
 
-    } while (choice != 3);
+    } while (choice != 2);
 
-    cout << "Au revoir!" << endl;
+    cout << "\nMerci d'avoir utilisé LogiTech Solutions. Fin du programme." << endl;
     return 0;
 }
