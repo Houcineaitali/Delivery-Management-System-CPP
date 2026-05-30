@@ -1,24 +1,21 @@
 #ifndef CORE_H
 #define CORE_H
-
 #include <string>
 
-// بنية الطرد (Données du Colis)
+// Structure représentant les données d'un colis
 struct Package {
-    double weight;
-    bool isFragile;
+    double weight;     // Poids du colis en kg
+    bool isFragile;    // État du colis (true si fragile, false sinon)
 };
 
-// الكلاس الأم المجرد للناقل (Interface Abstraite)
+// Interface/Classe de base abstraite pour les transporteurs
 class Carrier {
 public:
-    virtual ~Carrier() {}
+    virtual ~Carrier() {} // Destructeur virtuel pour une libération propre de la mémoire
     
-    // دوال افتراضية نقية يجب على كل ناقل تطبيقها بمنطقه الخاص
+    // Méthodes virtuelles pures (à implémenter obligatoirement par les classes dérivées)
     virtual bool canDeliver(const Package& p) const = 0;
-    virtual double computeCost(const Package& p) const = 0;
+    virtual double getPrice(const Package& p) const = 0;
     virtual std::string getName() const = 0;
-    virtual int getDelay() const = 0; // الوقت المستغرق بالديرق (مثلاً بالأيام أو الساعات)
 };
-
-#endif // CORE_H
+#endif
