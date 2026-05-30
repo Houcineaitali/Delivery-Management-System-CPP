@@ -1,44 +1,26 @@
-class Carrier {
-protected:
-    string type;
-public:
-    
-    virtual double computeCost(double weight) = 0; 
-    
-    
-    virtual int computeDelay(double weight) = 0;
 
-    virtual ~Carrier() {} 
+#include "Core.h"
+
+// Classe Camion : spécialisée pour les colis lourds
+class Truck : public Carrier {
+public:
+    std::string getName() const override { return "Camion 🚚"; }
+    
+    // Le camion accepte les colis lourds allant jusqu'à 200 kg
+    bool canDeliver(const Package& p) const override { return p.weight <= 200; }
+    
+    // Le prix du camion dépend du poids du colis
+    double getPrice(const Package& p) const override { return p.weight * 5; }
 };
 
-class BikeCarrier : public Carrier {
+// Classe Drone : spécialisée pour les colis légers et fragiles
+class Drone : public Carrier {
 public:
-    double computeCost(double weight) override {
-        return weight * 0.5; 
-    }
-    int computeDelay(double weight) override {
-        return 30; 
-    }
-};
-
-
-class TruckCarrier : public Carrier {
-public:
-    double computeCost(double weight) override {
-        return weight * 1.2;   
-    }
-    int computeDelay(double weight) override {
-        return 120;        
-    }
-};
-
-// 3. كلاص الدرون (Drone)
-class DroneCarrier : public Carrier {
-public:
-    double computeCost(double weight) override {
-        return weight * 5.0; 
-    }
-    int computeDelay(double weight) override {
-        return 15; 
-    }
+    std::string getName() const override { return "Drone 🚁"; }
+    
+    // Le drone accepte uniquement les colis légers (<= 5kg) ET fragiles
+    bool canDeliver(const Package& p) const override { return p.weight <= 5 && p.isFragile; }
+    
+    // Le drone applique un tarif fixe pour la livraison rapide
+    double getPrice(const Package& p) const override { return 100; }
 };
