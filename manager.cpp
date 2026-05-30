@@ -1,73 +1,50 @@
-#include <iostream>
 #include <vector>
-#include <string>
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include "Core.h"
 
-using namespace std;
-
-class Package {
-public:
-    int id;
-    double weight;
-    bool fragile;
-    string status;
-
-    Package(int i, double w, bool f) {
-        id = i;
-        weight = w;
-        fragile = f;
-        status = "En attente";
-    }
-};
-
-class Manager {
+class DeliverySystem {
 private:
-    vector<Package> packages;
+    std::vector<std::unique_ptr<Carrier>> fleet; // Utilisation des Smart Pointers (C++ moderne)
 
 public:
-
-    // Ajouter colis
-    void addPackage(Package p) {
-        packages.push_back(p);
-
-        cout << "Colis ajoute avec succes !" << endl;
+    // Ajouter un véhicule à la flotte
+    void addCarrier(std::unique_ptr<Carrier> c) { 
+        fleet.push_back(std::move(c)); 
     }
 
-    // Modifier statut
-    void updateStatus(int id, string newStatus) {
+    // Algorithme d'attribution automatique polymorphique
+    void ship(const Package& p) {
+        bool assigned = false;
 
-        for (int i = 0; i < packages.size(); i++) {
+        // Utilisation de la surcharge de l'opérateur << (Fonction amie de Core.h)
+        std::cout << "\nTraitement de l'expedition pour le : " << p << std::endl;
 
-            if (packages[i].id == id) {
-
-                packages[i].status = newStatus;
-
-                cout << "Statut mis a jour !" << endl;
-
-                return;
+        for (const auto& vehicle : fleet) {
+            // CHALLENGE AVANCÉ RÉUSSI :
+            // C'est l'objet véhicule lui-même qui décide via le polymorphisme dynamique.
+            // Aucun "if (typeid == Truck)" ou "switch" n'est écrit ici.
+            if (vehicle->canDeliver(p)) { 
+                double cost = vehicle->getPrice(p);
+                
+                std::cout << "-> Succes : Attribue a " << vehicle->getName() << std::endl;
+                std::cout << "   Tarif applique : " << cost << " DH" << std::endl;
+                
+                // PERSISTANCE DES DONNÉES : Sauvegarde du rapport de livraison
+                std::ofstream file("rapport_livraison.txt", std::ios::app);
+                if (file.is_open()) {
+                    file << "Vehicule: " << vehicle->getName() << " | Poids: " << p.weight 
+                         << "kg | Prix: " << cost << "DH\n";
+                }
+                
+                assigned = true;
+                break; // Le colis est pris en charge, on arrête la recherche
             }
         }
 
-        cout << "Colis introuvable !" << endl;
-    }
-
-    // Afficher tous les colis
-    void showPackages() {
-
-        cout << "\n===== Liste des Colis =====" << endl;
-
-        for (int i = 0; i < packages.size(); i++) {
-
-            cout << "ID : " << packages[i].id << endl;
-            cout << "Poids : " << packages[i].weight << " kg" << endl;
-
-            if (packages[i].fragile)
-                cout << "Type : Fragile" << endl;
-            else
-                cout << "Type : Standard" << endl;
-
-            cout << "Statut : " << packages[i].status << endl;
-
-            cout << "------------------------" << endl;
+        if (!assigned) {
+            std::cout << "-> Echec : Aucun transporteur de la flotte ne peut livrer ce colis." << std::endl;
         }
     }
 };
